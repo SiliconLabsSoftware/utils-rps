@@ -1,0 +1,43 @@
+name: 05-SonarQube-Analysis
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+      - "release/**"
+  workflow_dispatch:
+    inputs:
+        branch:
+            description: 'Branches to run the workflow on'
+            required: true
+            default: 'master'
+jobs:
+  sonarqube:
+    ##TODO create a selfhosted runner by this name.
+    runs-on: devs-self-hosted-runner
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+      
+      - name: Build Docker Image
+        run: docker build -t  ${{ github.repository }}-build-env:latest .
+      
+      # TODO: Add the actual build variants to the build wrapper. For example: "/opt/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir sonar-bw/ncp/ make ncp"
+      - name: Run SonarQube analysis
+        run: |
+          docker run -u root --rm -v $(pwd):/home/${{ github.repository }}/ -w /home/${{ github.repository }}/ ${{ github.repository }}-build-env:latest /bin/sh -c "
+            mkdir sonar-bw &&
+            /opt/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir sonar-bw/all make all &&
+            sonar-scanner -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.ws.timeout=20 -Dproject.settings=/home/${{ github.repository }}/.github/sonar-project.properties -Dsonar.branch.name=${{ github.event.inputs.branch }}"
+      
+      - name: Clean up workspace
+        if: always()
+        run: sudo git clean -ffdx
