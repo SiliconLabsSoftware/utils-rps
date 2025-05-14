@@ -45,9 +45,8 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/silabs-rps/
     permissions:
-      id-token: write
+      id-token: write # Required for OIDC authentication
 
     steps:
       - name: Retrieve release distributions
