@@ -46,6 +46,10 @@ jobs:
     environment: testpypi
 
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4
         with:
