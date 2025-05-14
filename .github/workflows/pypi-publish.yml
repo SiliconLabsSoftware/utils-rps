@@ -28,7 +28,7 @@ jobs:
 
       - name: Build release distributions
         run: |
-          python -m pip install build
+          python -m pip install build twine
           python -m build
 
       - name: Upload distributions
@@ -39,14 +39,11 @@ jobs:
 
   testpypi-publish:
     name: Publish Python package to TestPyPI
+    runs-on: ubuntu-latest
     needs:
       - build
-    runs-on: ubuntu-latest
 
-    environment:
-      name: testpypi
-    permissions:
-      id-token: write # Required for OIDC authentication
+    environment: testpypi
 
     steps:
       - name: Retrieve release distributions
@@ -56,7 +53,8 @@ jobs:
           path: dist/
 
       - name: Publish release distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/project/silabs-rps/
-          packages-dir: dist/
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          twine upload --repository testpypi dist/*
