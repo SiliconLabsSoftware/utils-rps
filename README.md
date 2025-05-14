@@ -1,5 +1,7 @@
 # RPS Image Creation and Conversion Tools
 
+[![Run Python Unit Tests](https://github.com/SiliconLabsSoftware/utils-rps/actions/workflows/unittest.yml/badge.svg)](https://github.com/SiliconLabsSoftware/utils-rps/actions/workflows/unittest.yml)
+
 _Create and convert RPS images for Silicon Labs SiWx91x devices in a breeze!_
 
 ## Introduction
