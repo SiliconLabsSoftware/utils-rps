@@ -2,7 +2,7 @@
 rps_create.py - Create RPS images for Silicon Labs SiWx91x devices
 
 Copyright: 2025, Silicon Laboratories Inc.
-Version: 1.0.1
+Version: 1.0.2
 
 Usage:
     rps_create <output filename> --app <filename> [--map <filename>] [--address <address>] [--app-version <version>] [--fw-info <firmware info>] [--sign <filename>] [--sha <size>] [--encrypt <filename>] [--mic <filename>] [--iv <filename>]

@@ -2,7 +2,7 @@
 rps_convert.py - Convert a non-secure RPS file into a signed/encrypted RPS file
 
 Copyright: 2025, Silicon Laboratories Inc.
-Version: 1.0.1
+Version: 1.0.2
 
 Usage:
     rps_convert <output filename> --rps <filename> [--sign <filename>] [--sha <size>] [--encrypt <filename>] [--mic <filename>] [--iv <filename>]
