@@ -28,7 +28,7 @@ jobs:
 
       - name: Build release distributions
         run: |
-          python -m pip install build twine
+          python -m pip install build
           python -m build
 
       - name: Upload distributions
@@ -57,4 +57,5 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          python -m twine upload --repository testpypi dist/*
+          python -m pip install twine
+          twine upload --repository testpypi dist/*
