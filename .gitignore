@@ -1,4 +1,5 @@
 # General part of the gitignore
+.DS_Store
 *.launch
 *.orig
 *.bak
@@ -16,22 +17,13 @@
 **/IAR ARM*
 **/sonar-bw/
 
-##Enable these if you are not tracking Simplicity studio project
-# **/.cproject
-# **/.project
-# **/.pdm
-
-## Documentation related ignores.
-## Modify them if it is necessary
-*.docx
-*.doc
-*.ppt
-*.pdf
-*.xlsx
-*.xls
-*.html
-
-
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
 #code convention tool gitignore
 code-convention-tool/

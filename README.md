@@ -1,74 +1,154 @@
-# Developer Services template project
-** TODO **Put project introduction here. 1-2 sentence about the project.
-## How to use the template
-1. Import the [basic ruleset](.github/rulesets/Silabs-basic-ruleset-internal.json). Follow the official GitHub [guide](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-rulesets-for-repositories-in-your-organization#importing-a-ruleset).
-2. Create your sw projects under [projects/](projects/) folder.
-3. Check [.gitignore](.gitignore) file and modify it if it is necessary
-4. Check the [./Dockerfile](./Dockerfile) and extend it if necessary
-5. Make sure that the whole project can be compiled with a single "make all" command.  
-   also implement "make clean"
-6. Fill out the [CODEOWNERS](./.github/CODEOWNERS) file. Here is the official github [guide](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
-7. Update and extend if needed the [sonar project file](./.github/sonar-project.properties) .
-8. **Internal projects only** Add a self-hosted runner with "devs-self-hosted-runner" name. Also add a "devs-self-hosted-runner" label to the runner.[guide](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners)
-9. Secrets, add your SonarQube token and GitHub personal access token.
-10. Check the workflow and adjust them according to the repo types (internal or public)
-11. Update this Readme file and remove this list from it.
+# RPS Image Creation and Conversion Tools
 
-## Table of Contents
-- [Developer Services template project](#developer-services-template-project)
-  - [How to use the template](#how-to-use-the-template)
-  - [Table of Contents](#table-of-contents)
-  - [Hardware requirements](#hardware-requirements)
-  - [Hardware Setup](#hardware-setup)
-  - [Build environment setup](#build-environment-setup)
-    - [Docker](#docker)
-    - [Windows](#windows)
-    - [Linux](#linux)
-    - [MacOS](#macos)
-  - [Debug environment](#debug-environment)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Secrets](#secrets)
+_Create and convert RPS images for Silicon Labs SiWx91x devices in a breeze!_
 
-## Hardware requirements
-** TODO ** List the required hw components.
+## Introduction
 
-## Hardware Setup
-** TODO ** Create a block diagram about the components.
+SiWx91x devices require application images to be converted into RPS images before they can be flashed to the device. The conversion from an application binary to an RPS image includes prepending a header to the application image. This header adds certain metadata to the application, including version numbers, control flags, size information, as well as other instructions to the device's bootloader.
 
-## Build environment setup
-** TODO ** Add steps here how to create a build environment. Remove the not supported platforms.
-### Docker
-Using Docker for the build environment has several advantages:
-- **Consistency**: Ensures the build environment is the same across all development machines.
-- **Isolation**: Keeps the build environment isolated from the host machine, avoiding conflicts.
-- **Portability**: Allows the build environment to be easily shared and reproduced.
-- **Scalability**: Simplifies scaling the build process across multiple machines.
+The `rps-create` tool can be used to create RPS images from M4 application binaries, including adding security features like encryption and signing. By default, a CRC protects the RPS' integrity, however MIC protection can be used instead.
 
-To set up the Docker-based build environment, follow these steps:
-1. Install Docker on your machine. Only Linux and MacOS platforms are supported for now.
-2. Clone the repository.
-3. Build the Docker image using the provided [Dockerfile](./Dockerfile).
-4. Run the Docker container with the necessary configurations.
+The `rps-convert` tool can be used to convert _existing_ unsigned/unencrypted (M4 or NWP) RPS images into signed/encrypted RPS images. Changing into MIC integrity protection is also available.
 
-### Windows
-** TODO ** With a numbered list define the process how to set up a development environment.
+## Requirements
 
-### Linux
-** TODO ** With a numbered list define the process how to set up a development environment.
+This tool was developed using Python 3.10. Required PyPI packages are:
 
-### MacOS
-** TODO ** With a numbered list define the process how to set up a development environment.
+- `intelhex`, for parsing Intel HEX-formatted (.hex) application images
+- `pycryptodome`, for encryption functionality
 
-## Debug environment
-**TODO**
-Explain how can a developer debug this software project. Pictures are recommended.
-## Contributing
-Please follow the [CONTRIBUTING](./.github/CONTRIBUTING.md) guideline-
+## Usage
 
-## License
-See the [LICENSE.md](./LICENSE.md) file for details.
+Help text along with descriptions of each option can be shown by providing the `-h` or `--help` flags.
 
-## Secrets
-The following secrets are required for this project:
-- `SONAR_TOKEN`: Token to access Sonarqube servers
+### Create RPS Images
+
+```console
+rps-create <output filename> --app <filename> 
+        [--map <filename>] [--address <address>] [--app-version <version>] 
+        [--fw-info <firmware info>] [--sign <filename>] [--sha <size>] 
+        [--encrypt <filename>] [--mic <filename>] [--iv <filename>] 
+```
+
+Available options:
+
+- `<output filename>` (_required_)
+  - Name of the output RPS image file
+- `--app <filename>` (_required_)
+  - Name of the application filename to convert into RPS file. Must be in .bin or .hex format
+- `--map <filename>` (_optional, but recommended if your application is to be placed in PSRAM_)
+  - Name of the map file (.map) from the compilation of the provided application. Used for determining flash start address
+- `--address <address>` (_required if the application file provided with --app is a .bin file, optional otherwise_)
+  - Application start address. Both decimal and hexadecimal (prefixed by 0x) values are interpreted
+- `--app-version <version number>` (_optional_)
+  - Application version number. Both decimal and hexadecimal (prefixed by 0x) values are interpreted
+- `--fw-info <firmware info>` (_optional_)
+  - Additional version information. Both decimal and hexadecimal (prefixed by 0x) values are interpreted
+- `--sign <key filename>` (_optional_)
+  - Sign the RPS image using the provided (NIST P-256) private key, and append the signature (72 bytes) to the RPS image. The key must be in .pem or .der format
+- `--sha <size>` (_optional_)
+  - Use SHA-\<size\> for signing the RPS image. Supported options are 256 (default), 384, and 512 bits
+- `--encrypt <key filename>` (_optional_)
+  - Encrypt the application image using AES ECB encryption. Key must be 32 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters)
+- `--mic <key filename>` (_optional_)
+  - Use MIC (AES CBC-MAC) based integrity check instead of CRC to protect the RPS image. Key must be 32 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters)
+- `--iv <iv filename>` (_optional_)
+  - Custom initialization vector (IV) for the MIC calculation. IV must be 16 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters). If no IV is provided, the default IV will be used.
+
+#### Usage Examples
+
+Here follows some examples on how to use `rps-create`.
+
+##### Create an RPS Image From a .bin Application Image Using CRC Integrity Protection
+
+```console
+rps-create my_rps.rps --app my_app.bin --address 0x08212000
+```
+
+##### Create an RPS Image From a .hex Application Image Using CRC Integrity Protection
+
+The application start address is encoded in the file, so the `--address` option must be omitted.
+
+```console
+rps-create my_rps.rps --app my_app.hex
+```
+
+##### Create an RPS Image to be Placed in PSRAM
+
+```console
+rps-create my_rps.rps --app my_app.bin --address 0x0A012000 --map my_map.map
+```
+
+Note: The provided .map file must correspond to the provided application.
+
+##### Create an RPS Image With MIC Integrity Protection
+
+```console
+rps-create my_rps.rps --app my_app.hex --mic my_key.txt --iv my_iv.txt
+```
+
+Note: The provided MIC key must match the `M4_OTA_KEY` stored on the device for the device to be able to verify the MIC.
+
+##### Create an Encrypted RPS Image
+
+```console
+rps-create my_rps.rps --app my_app.hex --encrypt my_key.txt
+```
+
+Note: The provided encryption key must match the `M4_OTA_KEY` stored on the device for the device to be able decrypt the RPS image.
+
+##### Create a Signed RPS Image, Using SHA-384 Hashing
+
+```console
+rps-create my_rps.rps --app my_app.hex --sign my_private_key.pem --sha 384
+```
+
+Note: The provided private key must match the `M4_PUBLIC_KEY` stored on the device for the device to be able to verify the signature of the RPS image.
+
+### Convert RPS Images
+
+```console
+rps-convert <output filename> --rps <filename> 
+        [--sign <filename>] [--sha <size>]
+        [--encrypt <filename>] 
+        [--mic <filename>] [--iv <filename>]
+```
+
+Available options:
+
+- `<output filename>` (_required_)
+  - Name of the output RPS image file
+- `--rps <filename>` (_required_)
+  - Name of the application filename to convert into RPS file. Must be in .bin or .hex format
+- `--sign <key filename>` (_optional_)
+  - Sign the RPS image using the provided (NIST P-256) private key, and append the signature (72 bytes) to the RPS image. The key must be in .pem or .der format
+- `--sha <size>` (_optional_)
+  - Use SHA-\<size\> for signing the RPS image. Supported options are 256 (default), 384, and 512 bits
+- `--encrypt <key filename>` (_optional_)
+  - Encrypt the application image using AES ECB encryption. Key must be 32 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters)
+- `--mic <key filename>` (_optional_)
+  - Use MIC (AES CBC-MAC) based integrity check instead of CRC to protect the RPS image. Key must be 32 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters)
+- `--iv <iv filename>` (_optional_)
+  - Custom initialization vector (IV) for the MIC calculation. IV must be 16 bytes, and must be formatted as .bin or .txt (as a string of hexadecimal characters). If no IV is provided, the default IV will be used.
+
+#### Usage Examples
+
+Here follows some examples on how to use `rps-convert`.
+
+##### Sign RPS Image
+
+```console
+rps-convert my_signed_rps.rps --rps my_rps.rps --sign my_key.pem
+```
+
+##### Encrypt RPS Image
+
+```console
+rps-convert my_encrypted_rps.rps --rps my_rps.rps --encrypt my_key.bin
+```
+
+##### Enable MIC Integrity Protection in RPS Image
+
+```console
+rps-convert my_mic_rps.rps --rps my_rps.rps --mic my_key.bin --iv my_iv.bin
+```

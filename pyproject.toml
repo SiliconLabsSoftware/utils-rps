@@ -1,0 +1,26 @@
+[project]
+name = "silabs-rps"
+version = "1.0.1"
+description = "Silicon Labs RPS Image Creation and Conversion Tools"
+authors = [
+    { name = "Silicon Labs" },
+]
+license = "LicenseRef-MSLA"
+license-files = ["LICENSE.md"]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "intelhex",
+    "pycryptodome",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://github.com/SiliconLabsSoftware/utils-rps"
+
+[project.scripts]
+rps-create = "silabs_rps.rps_create:main"
+rps-convert = "silabs_rps.rps_convert:main"
