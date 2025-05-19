@@ -13,7 +13,7 @@ sections of the MSLA applicable to Source Code.
 rps_convert.py - Convert a non-secure RPS file into a signed/encrypted RPS file
 
 Copyright: 2025, Silicon Laboratories Inc.
-Version: 1.0.2
+Version: 1.0.3
 
 Usage:
     rps_convert <output filename> --rps <filename> [--sign <filename>] [--sha <size>] [--encrypt <filename>] [--mic <filename>] [--iv <filename>]
@@ -46,6 +46,7 @@ _parser = argparse.ArgumentParser(
     description="Convert a non-secure RPS file into a signed/encrypted RPS file."
 )
 
+_parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.3")
 _parser.add_argument("output",        type=str,                   metavar="<output filename>",                             help="Output RPS file.")
 _parser.add_argument("--rps",         type=str,                   metavar="<filename>",        required=True,              help="Input RPS file.")
 _parser.add_argument("--sign",        type=str,                   metavar="<filename>",                                    help="Sign the RPS image using ECDSA. Key must be in .pem or .der format.")

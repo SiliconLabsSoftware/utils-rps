@@ -1,6 +1,6 @@
 [project]
 name = "silabs-rps"
-version = "1.0.2"
+version = "1.0.3"
 description = "Silicon Labs RPS Image Creation and Conversion Tools"
 authors = [
     { name = "Silicon Labs" },
