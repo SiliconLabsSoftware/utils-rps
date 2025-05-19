@@ -171,7 +171,7 @@ class RPS:
             self.magic                  : int = rps_consts.RPS_BOOT_DESCRIPTOR_MAGIC
             self.boot_descriptor_offset : int = 0
             self.ivt_offset             : int = 0
-            self.boot_descriptor_entries: list[self.BootDescriptorEntry] = [self.BootDescriptorEntry() for _ in range(rps_consts.RPS_NUM_BOOT_DESCRIPTOR_ENTRIES)]
+            self.boot_descriptor_entries: list[RPS.BootDescriptorEntry] = [self.BootDescriptorEntry() for _ in range(rps_consts.RPS_NUM_BOOT_DESCRIPTOR_ENTRIES)]
             self.padding                : bytes = bytes(rps_consts.RPS_FULL_HEADER_SIZE - rps_consts.RPS_HEADER_SIZE - rps_consts.RPS_BOOT_DESCRIPTOR_SIZE)
 
         def set_boot_descriptor_offset(self, boot_descriptor_offset : int) -> None:
@@ -239,10 +239,10 @@ class RPS:
 
 
     def __init__(self) -> None:
-        self.header          : self.Header          = self.Header()
-        self.boot_descriptor : self.BootDescriptor  = self.BootDescriptor()
-        self.application     : self.Application     = self.Application()
-        self.signature       : self.Signature       = self.Signature()
+        self.header          : RPS.Header          = self.Header()
+        self.boot_descriptor : RPS.BootDescriptor  = self.BootDescriptor()
+        self.application     : RPS.Application     = self.Application()
+        self.signature       : RPS.Signature       = self.Signature()
 
     def get_binary_data(self) -> bytes:
         buffer = bytearray()
