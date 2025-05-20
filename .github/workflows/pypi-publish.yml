@@ -10,10 +10,10 @@ permissions:
 
 jobs:
   build-and-publish:
-    name: Build and publish Python package to TestPyPI
+    name: Build and publish Python package to PyPI
     runs-on: ubuntu-latest
 
-    environment: testpypi
+    environment: pypi
 
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +31,9 @@ jobs:
         run: |
           python -m build
 
-      - name: Publish release distributions to TestPyPI
+      - name: Publish release distributions to PyPI
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload --repository testpypi dist/*
+          twine upload dist/*
