@@ -19,6 +19,12 @@ This tool was developed using Python 3.10. Required PyPI packages are:
 - `intelhex`, for parsing Intel HEX-formatted (.hex) application images
 - `pycryptodome`, for encryption functionality
 
+## Installation
+
+```console
+pip install silabs-rps
+```
+
 ## Usage
 
 Help text along with descriptions of each option can be shown by providing the `-h` or `--help` flags.
