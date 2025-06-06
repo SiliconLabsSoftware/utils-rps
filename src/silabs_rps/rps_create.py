@@ -13,7 +13,7 @@ sections of the MSLA applicable to Source Code.
 rps_create.py - Create RPS images for Silicon Labs SiWx91x devices
 
 Copyright: 2025, Silicon Laboratories Inc.
-Version: 1.0.3
+Version: 1.1.0
 
 Usage:
     rps_create <output filename> --app <filename> [--map <filename>] [--address <address>] [--app-version <version>] [--fw-info <firmware info>] [--sign <filename>] [--sha <size>] [--encrypt <filename>] [--mic <filename>] [--iv <filename>]
@@ -50,7 +50,7 @@ _parser = argparse.ArgumentParser(
     description="Convert application binaries for Silicon Labs SiWx91x devices into RPS images.",
 )
 
-_parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.3")
+_parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.1.0")
 _parser.add_argument("output",        type=str,                   metavar="<output filename>",                             help="Output RPS file.")
 _parser.add_argument("--app",         type=str,                   metavar="<filename>",        required=True,              help="Application binary file. Must be in .bin or .hex format.")
 _parser.add_argument("--map",         type=str,                   metavar="<filename>",                                    help="Map file (.map) from the compilation of the provided application. Used for determining the flash start address.")
