@@ -193,6 +193,11 @@ def main():
     if (apply_encryption or apply_mic) and not app_size % 16 == 0:
         print("Warning: Application size is not a multiple of 16 bytes, which is required for encryption and MIC calculation. Padding with zeroes.")
         app_data += bytes(16 - (app_size % 16))
+        app_size = len(app_data)
+
+    bytes_left_of_page : int = (4096 - (app_size % 4096)) & 0xFFF
+    if bytes_left_of_page < 80:
+        app_data += bytes(bytes_left_of_page + 16)
 
     app_size = len(app_data) + rps_consts.RPS_FULL_HEADER_SIZE - rps_consts.RPS_HEADER_SIZE
 

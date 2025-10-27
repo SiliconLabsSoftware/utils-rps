@@ -153,6 +153,10 @@ def main():
         print(f"Warning: The RPS file size is not a multiple of 16 bytes, which is required for encryption and MIC calculation. Padding with zeroes.")
         rps_data += bytes(16 - len(rps_data) % 16)
 
+    bytes_left_of_page : int = (4096 - (len(rps_data) % 4_096)) & 0xFFF
+    if bytes_left_of_page < 80:
+        rps_data += bytes(bytes_left_of_page + 16)
+
     rps_file.set_binary_data(rps_data)
     rps_file.header.set_image_size(len(rps_data) - rps_consts.RPS_HEADER_SIZE)
 
