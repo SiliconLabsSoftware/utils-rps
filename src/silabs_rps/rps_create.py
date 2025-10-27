@@ -188,6 +188,7 @@ def main():
     if app_size % 4 != 0:
         # Regardless of security features, the RPS image must be word-aligned
         app_data += bytes(4 - (app_size % 4))
+        app_size = len(app_data)
 
     if (apply_encryption or apply_mic) and not app_size % 16 == 0:
         print("Warning: Application size is not a multiple of 16 bytes, which is required for encryption and MIC calculation. Padding with zeroes.")
