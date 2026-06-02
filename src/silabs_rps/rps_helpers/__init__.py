@@ -104,3 +104,20 @@ def get_flash_start_address_from_map_file(filename : str) -> int:
                 return int(match.group("start"), 16)
 
     return 0xFFFFFFFF
+
+
+def is_ld_file(filename : str) -> bool:
+    """ Check if a file is a LD file. """
+    return filename.endswith(".ld")
+
+def get_flash_start_address_from_ld_file(filename : str) -> int:
+    """ Parse a LD file and return the flash start address. Expects an LLVM-style LD file. """
+
+    flashPattern = r"^\s*(FLASH|ROM)\s*\(.*\)\s*:\s*ORIGIN\s*=\s*(?P<start>0x[0-9a-f]+)\s*,\s*LENGTH\s*=\s*(?P<size>0x[0-9a-f]+)\s*$"
+    with open(filename, "r") as f:
+        for line in f:
+            match = re.match(flashPattern, line, re.IGNORECASE)
+            if match:
+                return int(match.group("start"), 16)
+
+    return 0xFFFFFFFF

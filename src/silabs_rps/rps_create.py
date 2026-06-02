@@ -54,6 +54,7 @@ _parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.
 _parser.add_argument("output",        type=str,                   metavar="<output filename>",                             help="Output RPS file.")
 _parser.add_argument("--app",         type=str,                   metavar="<filename>",        required=True,              help="Application binary file. Must be in .bin or .hex format.")
 _parser.add_argument("--map",         type=str,                   metavar="<filename>",                                    help="Map file (.map) from the compilation of the provided application. Used for determining the flash start address.")
+_parser.add_argument("--linkerscript",type=str,                   metavar="<filename>",                                    help="Linker script file (.ld) from the compilation of the provided application. Used for determining the flash start address.")
 _parser.add_argument("--address",     type=rps_helpers.parse_int, metavar="<address>",                                     help="Application start address.")
 _parser.add_argument("--app-version", type=rps_helpers.parse_int, metavar="<version>",                        default=0,   help="Application version.")
 _parser.add_argument("--fw-info",     type=rps_helpers.parse_int, metavar="<firmware info>",                  default=0,   help="Additional version information.")
@@ -67,31 +68,32 @@ _parser.add_argument("--iv",          type=str,                   metavar="<file
 def main():
     _args = _parser.parse_args()
 
-    output_filename  : str         = _args.output
-    app_filename     : str         = _args.app
-    map_filename     : str  | None = _args.map
-    address          : int  | None = _args.address
-    app_version      : int         = _args.app_version
-    fw_info          : int         = _args.fw_info
-    apply_signature  : bool        = _args.sign is not None
-    sign_filename    : str  | None = _args.sign
-    sha_size         : int         = _args.sha
-    apply_encryption : bool        = _args.encrypt is not None
-    encrypt_filename : str  | None = _args.encrypt
-    apply_mic        : bool        = _args.mic is not None
-    mic_filename     : str  | None = _args.mic
-    iv_filename      : str  | None = _args.iv
+    output_filename       : str         = _args.output
+    app_filename          : str         = _args.app
+    map_filename          : str  | None = _args.map
+    linkerscript_filename : str  | None = _args.linkerscript
+    address               : int  | None = _args.address
+    app_version           : int         = _args.app_version
+    fw_info               : int         = _args.fw_info
+    apply_signature       : bool        = _args.sign is not None
+    sign_filename         : str  | None = _args.sign
+    sha_size              : int         = _args.sha
+    apply_encryption      : bool        = _args.encrypt is not None
+    encrypt_filename      : str  | None = _args.encrypt
+    apply_mic             : bool        = _args.mic is not None
+    mic_filename          : str  | None = _args.mic
+    iv_filename           : str  | None = _args.iv
 
-    app_size        : int   = 0
-    app_data        : bytes = b""
-    is_psram_app    : bool  = False
-    flash_start_addr: int   = 0
-    signature_type  : int   = rps_consts.RPS_SIGNATURE_TYPE_NONE
+    app_size         : int   = 0
+    app_data         : bytes = b""
+    is_psram_app     : bool  = False
+    flash_start_addr : int   = 0
+    signature_type   : int   = rps_consts.RPS_SIGNATURE_TYPE_NONE
 
-    mic_key         : bytes | None = None
-    iv              : bytes | None = None
-    enc_key         : bytes | None = None
-    sign_key        : bytes | None = None
+    mic_key          : bytes | None = None
+    iv               : bytes | None = None
+    enc_key          : bytes | None = None
+    sign_key         : bytes | None = None
 
     # Parse the input file
     print(f"Reading application file '{app_filename}'...")
@@ -164,20 +166,51 @@ def main():
 
     if (address & rps_consts.RPS_PSRAM_ADDRESS_BASE) == rps_consts.RPS_PSRAM_ADDRESS_BASE:
         is_psram_app = True
-        if map_filename is not None:
-            print(f"Reading map file '{map_filename}'...")
-            if not rps_helpers.is_map_file(map_filename):
-                _parser.error("Map file must be in .map format.")
 
-            flash_start_addr = rps_helpers.get_flash_start_address_from_map_file(map_filename)
-            if flash_start_addr == 0xFFFFFFFF:
-                _parser.error("Flash start address not found in the map file.")
+        if map_filename or linkerscript_filename:
+            map_file_has_flash_start_address = False
+            map_file_flash_start_address = 0xFFFFFFFF
+            if map_filename is not None:
+                print(f"Reading map file '{map_filename}'...")
+                if not rps_helpers.is_map_file(map_filename):
+                    _parser.error("Map file must be in .map format.")
+
+                map_file_flash_start_address = rps_helpers.get_flash_start_address_from_map_file(map_filename)
+                if map_file_flash_start_address == 0xFFFFFFFF:
+                    print("Warning: Flash start address not found in the map file.")
+                else:
+                    print(f"Flash start address found in map file: 0x{map_file_flash_start_address:08X}")
+                    map_file_has_flash_start_address = True
+
+            linkerscript_file_has_flash_start_address = False
+            linkerscript_file_flash_start_address = 0xFFFFFFFF
+            if linkerscript_filename is not None:
+                print(f"Reading linker script file '{linkerscript_filename}'...")
+                if not rps_helpers.is_ld_file(linkerscript_filename):
+                    _parser.error("Linker script file must be in .ld format.")
+
+                linkerscript_file_flash_start_address = rps_helpers.get_flash_start_address_from_ld_file(linkerscript_filename)
+                if linkerscript_file_flash_start_address == 0xFFFFFFFF:
+                    print("Warning: Flash start address not found in the linker script file.")
+                else:
+                    print(f"Flash start address found in linker script file: 0x{linkerscript_file_flash_start_address:08X}")
+                    linkerscript_file_has_flash_start_address = True
+
+            if map_file_has_flash_start_address:
+                print(f"Using flash start address from map file: 0x{map_file_flash_start_address:08X}")
+                flash_start_addr = map_file_flash_start_address
+            elif linkerscript_file_has_flash_start_address:
+                print(f"Using flash start address from linker script file: 0x{linkerscript_file_flash_start_address:08X}")
+                flash_start_addr = linkerscript_file_flash_start_address
             else:
-                print(f"Flash start address found in map file: 0x{flash_start_addr:08X}")
+                print(f"Warning: No flash start address found in the map file or linker script file. Using fallback address: 0x{rps_consts.FLASH_START_ADDRESS_FALLBACK:08X}\n"
+                        "If this is not the case, you must provide a map file using the --map option or a linker script file using the --linkerscript option.")
+                flash_start_addr = rps_consts.FLASH_START_ADDRESS_FALLBACK
+
         else:
-            print(f"Warning: Flash start address is not provided. Assuming flash start address to be the same as the provided application start address (0x{address:08X})."
-                    "If this is not the case, you must provide a map file using the --map option.")
-            flash_start_addr = address
+            print(f"Warning: A map file or linker script was not provided. Using fallback address: 0x{rps_consts.FLASH_START_ADDRESS_FALLBACK:08X}\n"
+                    "If this is not the case, you must provide a map file using the --map option or a linker script file using the --linkerscript option.")
+            flash_start_addr = rps_consts.FLASH_START_ADDRESS_FALLBACK
 
     elif (address & rps_consts.RPS_M4_FLASH_ADDRESS_BASE) == rps_consts.RPS_M4_FLASH_ADDRESS_BASE:
         is_psram_app = False

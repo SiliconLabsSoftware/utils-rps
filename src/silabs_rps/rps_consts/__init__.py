@@ -11,6 +11,8 @@ sections of the MSLA applicable to Source Code.
 *******************************************************************************
 """
 
+FLASH_START_ADDRESS_FALLBACK     = 0x08202000
+
 RPS_HEADER_MAGIC                 = 0x900D900D
 RPS_HEADER_SIZE                  =         64
 RPS_FULL_HEADER_SIZE             =       4096

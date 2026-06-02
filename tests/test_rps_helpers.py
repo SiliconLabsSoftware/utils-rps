@@ -84,6 +84,16 @@ class TestHelpers(unittest.TestCase):
     def test_get_flash_start_address_from_map_file_invalid_file(self):
         self.assertEqual(get_flash_start_address_from_map_file(os.path.join(TEST_FILE_DIR, "mapfile-invalid.map")), 0xFFFFFFFF)
 
+    def test_is_ld_file(self):
+        self.assertTrue(is_ld_file("file.ld"))
+        self.assertFalse(is_ld_file("file.bin"))
+        self.assertFalse(is_ld_file("file.map"))
+
+    def test_get_flash_start_address_from_ld_file(self):
+        self.assertEqual(get_flash_start_address_from_ld_file(os.path.join(TEST_FILE_DIR, "linkerscript.ld")), 0x08212000)
+
+    def test_get_flash_start_address_from_ld_file_invalid_file(self):
+        self.assertEqual(get_flash_start_address_from_ld_file(os.path.join(TEST_FILE_DIR, "linkerscript-invalid.ld")), 0xFFFFFFFF)
 
 if __name__ == "__main__":
     unittest.main()
