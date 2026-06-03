@@ -33,9 +33,9 @@ Help text along with descriptions of each option can be shown by providing the `
 
 ```console
 rps-create <output filename> --app <filename> 
-        [--map <filename>] [--address <address>] [--app-version <version>] 
-        [--fw-info <firmware info>] [--sign <filename>] [--sha <size>] 
-        [--encrypt <filename>] [--mic <filename>] [--iv <filename>] 
+        [--map <filename>] [--linkerscript <filename>] [--address <address>]
+        [--app-version <version>] [--fw-info <firmware info>] [--sign <filename>]
+        [--sha <size>] [--encrypt <filename>] [--mic <filename>] [--iv <filename>] 
 ```
 
 Available options:
@@ -46,6 +46,8 @@ Available options:
   - Name of the application filename to convert into RPS file. Must be in .bin or .hex format
 - `--map <filename>` (_optional, but recommended if your application is to be placed in PSRAM_)
   - Name of the map file (.map) from the compilation of the provided application. Used for determining flash start address
+- `--linkerscript <filename>` (_optional, but recommended if your application is to be placed in PSRAM_)
+  - Name of the linker script file (.ld) from the compilation of the provided application. Used for determining flash start address
 - `--address <address>` (_required if the application file provided with --app is a .bin file, optional otherwise_)
   - Application start address. Both decimal and hexadecimal (prefixed by 0x) values are interpreted
 - `--app-version <version number>` (_optional_)
@@ -87,7 +89,13 @@ rps-create my_rps.rps --app my_app.hex
 rps-create my_rps.rps --app my_app.bin --address 0x0A012000 --map my_map.map
 ```
 
-Note: The provided .map file must correspond to the provided application.
+Note: The provided .map file must correspond with the application provided with the `--app` option.
+
+```console
+rps-create my_rps.rps --app my_app.bin --address 0x0A012000 --linkerscript my_linkerscript.ld
+```
+
+Note: The provided .ld file must correspond with the application provided with the `--app` option.
 
 ##### Create an RPS Image With MIC Integrity Protection
 
