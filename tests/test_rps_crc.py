@@ -1,6 +1,6 @@
 """
 License
-Copyright 2025 Silicon Laboratories Inc. www.silabs.com
+Copyright 2026 Silicon Laboratories Inc. www.silabs.com
 *******************************************************************************
 The licensor of this software is Silicon Laboratories Inc. Your use of this
 software is governed by the terms of Silicon Labs Master Software License

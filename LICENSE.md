@@ -1,4 +1,4 @@
-**Copyright 2025 Silicon Laboratories Inc. [https://www.silabs.com](https://www.silabs.com/)**
+**Copyright 2026 Silicon Laboratories Inc. [https://www.silabs.com](https://www.silabs.com/)**
 
 SPDX-License-Identifier: LicenseRef-MSLA
 

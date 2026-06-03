@@ -1,6 +1,6 @@
 """
 License
-Copyright 2025 Silicon Laboratories Inc. www.silabs.com
+Copyright 2026 Silicon Laboratories Inc. www.silabs.com
 *******************************************************************************
 The licensor of this software is Silicon Laboratories Inc. Your use of this
 software is governed by the terms of Silicon Labs Master Software License
@@ -12,7 +12,7 @@ sections of the MSLA applicable to Source Code.
 
 rps_convert.py - Convert a non-secure RPS file into a signed/encrypted RPS file
 
-Copyright: 2025, Silicon Laboratories Inc.
+Copyright: 2026, Silicon Laboratories Inc.
 Version: 1.2.0
 
 Usage:
