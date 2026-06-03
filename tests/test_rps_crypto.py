@@ -57,6 +57,32 @@ class TestHelpers(unittest.TestCase):
 
         self.assertEqual(sign(unsigned_data, PRIVATE_KEY, 256), expected_signature)
 
+    def test_sign_sha384(self):
+        with open(os.path.join(TEST_FILE_DIR, "dummy-signed.rps"), "rb") as f:
+            unsigned_data = f.read()[:-72]
+
+        expected_signature = bytes.fromhex(
+            "30450220602a9e95f12606b4e3cfe39e577b34095ea278164348debcb02b784605f83077"
+            "022100847ae83b4321749faefe911799c928f77c8937a82149bf3cb50e50fb872bdd3900"
+        )
+
+        self.assertEqual(sign(unsigned_data, PRIVATE_KEY, 384), expected_signature)
+
+    def test_sign_sha512(self):
+        with open(os.path.join(TEST_FILE_DIR, "dummy-signed.rps"), "rb") as f:
+            unsigned_data = f.read()[:-72]
+
+        expected_signature = bytes.fromhex(
+            "304402206e9563ce85214949e11fe8e8580bcbdb5067e3383f2a54351666f832cb324c51"
+            "022062ef67cec3319067917b79c8d121e850b61f94981c7f14cb0ee3e0ebca0f2dcc0000"
+        )
+
+        self.assertEqual(sign(unsigned_data, PRIVATE_KEY, 512), expected_signature)
+
+    def test_sign_invalid_sha_size(self):
+        with self.assertRaises(ValueError):
+            sign(b"\x00" * 16, PRIVATE_KEY, 123)
+
 
 if __name__ == "__main__":
     unittest.main()

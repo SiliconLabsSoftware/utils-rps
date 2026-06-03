@@ -24,6 +24,18 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(parse_int("1234"), 1234)
         self.assertEqual(parse_int("0x1234"), 0x1234)
 
+    def test_is_rps_file(self):
+        self.assertTrue(is_rps_file("file.rps"))
+        self.assertTrue(is_rps_file("firmware_isp.bin"))
+        self.assertFalse(is_rps_file("file.bin"))
+        self.assertFalse(is_rps_file("file.hex"))
+
+    def test_read_rps_file(self):
+        rps_path = "tests/testfiles/crypto/dummy-unencrypted.rps"
+        with open(rps_path, "rb") as f:
+            expected = f.read()
+        self.assertEqual(read_rps_file(rps_path), expected)
+
     def test_is_hex_file(self):
         self.assertTrue(is_hex_file("file.hex"))
         self.assertFalse(is_hex_file("file.bin"))

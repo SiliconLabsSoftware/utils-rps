@@ -26,6 +26,21 @@ class TestHelpers(unittest.TestCase):
 
         self.assertEqual(checksum(data), expected_checksum)
 
+    def test_checksum_empty_data(self):
+        # Empty input short-circuits and returns the initial sum value (1)
+        self.assertEqual(checksum(b""), 1)
+
+    def test_checksum_unaligned_data(self):
+        # Inputs whose length is not a multiple of 4 exercise the trailing-bytes branch
+        self.assertEqual(checksum(b"\x01"), 0xFFFFFFFD)
+        self.assertEqual(checksum(b"\x01\x02\x03"), 0xFFFCFDFD)
+        self.assertEqual(checksum(b"\x01\x02\x03\x04\x05"), 0xFBFCFDFC)
+
+    def test_checksum_unaligned_data_with_carry(self):
+        # First chunk drives the running sum to 0xFFFFFF80 so that adding the
+        # final 0xFF byte overflows and exercises the carry branch
+        self.assertEqual(checksum(b"\x80\xfe\xff\xff\xff\x00\x00\x00\x00"), 0xFFFFFF7F)
+
 
 if __name__ == "__main__":
     unittest.main()
